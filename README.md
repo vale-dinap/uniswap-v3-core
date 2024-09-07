@@ -12,9 +12,6 @@ This compatibility layer has been created with two goals in mind:
 The repository includes:
 - Updated Solidity contracts for compatibility with version 0.8.x and above.
 - Key components from the Uniswap V3 core:
-  - [**ADD HERE**
-  - **ADD MORE**
-  - **AND SO ON**]
   ### Callback Interfaces:
   Interfaces for implementing key callbacks required by the Uniswap V3 protocol such as minting, swapping, and flash loan callbacks.
     - **IUniswapV3FlashCallback.sol**
