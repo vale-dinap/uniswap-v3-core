@@ -1,4 +1,4 @@
-pragma solidity =0.7.6;
+pragma solidity >=0.8.0;
 pragma abicoder v2;
 
 import '../../../../../contracts/test/TestERC20.sol';
@@ -8,7 +8,7 @@ import '../../../../../contracts/UniswapV3Factory.sol';
 contract SetupToken {
     TestERC20 public token;
 
-    constructor() public {
+    constructor() {
         // this contract will receive the total supply of 100 tokens
         token = new TestERC20(1e12 ether);
     }
@@ -117,8 +117,8 @@ contract UniswapMinter {
             int128
         )
     {
-        (uint128 tL_liqGross, int128 tL_liqNet, , ) = pool.ticks(_tickLower);
-        (uint128 tU_liqGross, int128 tU_liqNet, , ) = pool.ticks(_tickUpper);
+        (uint128 tL_liqGross, int128 tL_liqNet,,,,,,) = pool.ticks(_tickLower);
+        (uint128 tU_liqGross, int128 tU_liqNet,,,,,,) = pool.ticks(_tickUpper);
         return (tL_liqGross, tL_liqNet, tU_liqGross, tU_liqNet);
     }
 
@@ -162,7 +162,7 @@ contract UniswapSwapper {
         int24 tick;
     }
 
-    constructor(TestERC20 _token0, TestERC20 _token1) public {
+    constructor(TestERC20 _token0, TestERC20 _token1) {
         token0 = _token0;
         token1 = _token1;
     }

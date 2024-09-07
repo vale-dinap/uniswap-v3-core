@@ -1,4 +1,4 @@
-pragma solidity =0.7.6;
+pragma solidity >=0.8.0;
 pragma abicoder v2;
 
 import './Setup.sol';
@@ -42,7 +42,7 @@ contract E2E_swap {
     PoolParams poolParams;
     PoolPositions poolPositions;
 
-    constructor() public {
+    constructor() {
         tokens = new SetupTokens();
         token0 = tokens.token0();
         token1 = tokens.token1();
@@ -104,7 +104,7 @@ contract E2E_swap {
     function check_liquidityNet_invariant() internal {
         int128 liquidityNet = 0;
         for (uint256 i = 0; i < usedTicks.length; i++) {
-            (, int128 tickLiquidityNet, , ) = pool.ticks(usedTicks[i]);
+            (, int128 tickLiquidityNet,,,,,,) = pool.ticks(usedTicks[i]);
             int128 result = liquidityNet + tickLiquidityNet;
             assert(
                 (tickLiquidityNet >= 0 && result >= liquidityNet) || (tickLiquidityNet < 0 && result < liquidityNet)
@@ -122,7 +122,7 @@ contract E2E_swap {
         for (uint256 i = 0; i < usedTicks.length; i++) {
             int24 tick = usedTicks[i];
             if (tick <= currentTick) {
-                (, int128 tickLiquidityNet, , ) = pool.ticks(tick);
+                (, int128 tickLiquidityNet,,,,,,) = pool.ticks(tick);
                 int128 result = liquidity + tickLiquidityNet;
                 assert((tickLiquidityNet >= 0 && result >= liquidity) || (tickLiquidityNet < 0 && result < liquidity));
                 liquidity = result;
@@ -142,8 +142,8 @@ contract E2E_swap {
         int24 tickBelow = currentTick - poolParams.tickSpacing;
         int24 tickAbove = currentTick + poolParams.tickSpacing;
 
-        (, , uint256 tB_feeGrowthOutside0X128, uint256 tB_feeGrowthOutside1X128) = pool.ticks(tickBelow);
-        (, , uint256 tA_feeGrowthOutside0X128, uint256 tA_feeGrowthOutside1X128) = pool.ticks(tickAbove);
+        (, , uint256 tB_feeGrowthOutside0X128, uint256 tB_feeGrowthOutside1X128,,,,) = pool.ticks(tickBelow);
+        (, , uint256 tA_feeGrowthOutside0X128, uint256 tA_feeGrowthOutside1X128,,,,) = pool.ticks(tickAbove);
 
         // prop #22
         assert(tB_feeGrowthOutside0X128 + tA_feeGrowthOutside0X128 <= pool.feeGrowthGlobal0X128());
@@ -226,7 +226,7 @@ contract E2E_swap {
         //
         // set the initial price
         //
-        poolParams.startTick = int24((_seed % uint128(poolParams.tickCount)) * uint128(poolParams.tickSpacing));
+        poolParams.startTick = int24(uint24((_seed % uint128(poolParams.tickCount)) * uint128(int128(poolParams.tickSpacing))));
         if (_seed % 3 == 0) {
             // set below 0
             poolParams.startPrice = TickMath.getSqrtRatioAtTick(-poolParams.startTick);
@@ -258,7 +258,7 @@ contract E2E_swap {
             int24 tickUpper;
             uint128 amount;
 
-            int24 randomTick1 = int24((_seed % uint128(_poolTickCount)) * uint128(_poolTickSpacing));
+            int24 randomTick1 = int24(uint24((_seed % uint128(_poolTickCount)) * uint128(int128(_poolTickSpacing))));
 
             if (_seed % 2 == 0) {
                 // make tickLower positive
@@ -266,16 +266,16 @@ contract E2E_swap {
 
                 // tickUpper is somewhere above tickLower
                 uint24 poolTickCountLeft = uint24((_poolMaxTick - randomTick1) / _poolTickSpacing);
-                int24 randomTick2 = int24((_seed % uint128(poolTickCountLeft)) * uint128(_poolTickSpacing));
+                int24 randomTick2 = int24(uint24((_seed % uint128(poolTickCountLeft)) * uint128(int128(_poolTickSpacing))));
                 tickUpper = tickLower + randomTick2;
             } else {
                 // make tickLower negative or zero
-                tickLower = randomTick1 == 0 ? 0 : -randomTick1;
+                tickLower = randomTick1 == 0 ? int24(0) : -randomTick1;
 
                 uint24 poolTickCountNegativeLeft = uint24((_poolMaxTick - randomTick1) / _poolTickSpacing);
                 uint24 poolTickCountTotalLeft = poolTickCountNegativeLeft + _poolTickCount;
 
-                uint24 randomIncrement = uint24((_seed % uint128(poolTickCountTotalLeft)) * uint128(_poolTickSpacing));
+                uint24 randomIncrement = uint24((_seed % uint128(poolTickCountTotalLeft)) * uint128(int128(_poolTickSpacing)));
 
                 if (randomIncrement <= uint24(tickLower)) {
                     // tickUpper will also be negative
@@ -293,7 +293,7 @@ contract E2E_swap {
             poolPositions_.tickUppers[i] = tickUpper;
             poolPositions_.amounts[i] = amount;
 
-            _seed += uint128(tickLower);
+            _seed += uint128(int128(tickLower));
         }
     }
 
@@ -355,9 +355,9 @@ contract E2E_swap {
         if (!inited) _init(_amount);
 
         require(token0.balanceOf(address(swapper)) >= uint256(_amount));
-        int256 _amountSpecified = int256(_amount);
+        int256 _amountSpecified = int256(uint256(_amount));
 
-        uint160 sqrtPriceLimitX96 = get_random_zeroForOne_priceLimit(_amount);
+        uint160 sqrtPriceLimitX96 = get_random_zeroForOne_priceLimit(int256(uint256(_amount)));
         // console.log('sqrtPriceLimitX96 = %s', sqrtPriceLimitX96);
 
         (UniswapSwapper.SwapperStats memory bfre, UniswapSwapper.SwapperStats memory aftr) =
@@ -389,9 +389,9 @@ contract E2E_swap {
         if (!inited) _init(_amount);
 
         require(token1.balanceOf(address(swapper)) >= uint256(_amount));
-        int256 _amountSpecified = int256(_amount);
+        int256 _amountSpecified = int256(uint256(_amount));
 
-        uint160 sqrtPriceLimitX96 = get_random_oneForZero_priceLimit(_amount);
+        uint160 sqrtPriceLimitX96 = get_random_oneForZero_priceLimit(int256(uint256(_amount)));
         // console.log('sqrtPriceLimitX96 = %s', sqrtPriceLimitX96);
 
         (UniswapSwapper.SwapperStats memory bfre, UniswapSwapper.SwapperStats memory aftr) =
@@ -423,9 +423,9 @@ contract E2E_swap {
         if (!inited) _init(_amount);
 
         require(token0.balanceOf(address(swapper)) > 0);
-        int256 _amountSpecified = -int256(_amount);
+        int256 _amountSpecified = -int256(uint256(_amount));
 
-        uint160 sqrtPriceLimitX96 = get_random_zeroForOne_priceLimit(_amount);
+        uint160 sqrtPriceLimitX96 = get_random_zeroForOne_priceLimit(int256(uint256(_amount)));
         // console.log('sqrtPriceLimitX96 = %s', sqrtPriceLimitX96);
 
         (UniswapSwapper.SwapperStats memory bfre, UniswapSwapper.SwapperStats memory aftr) =
@@ -457,9 +457,9 @@ contract E2E_swap {
         if (!inited) _init(_amount);
 
         require(token0.balanceOf(address(swapper)) > 0);
-        int256 _amountSpecified = -int256(_amount);
+        int256 _amountSpecified = -int256(uint256(_amount));
 
-        uint160 sqrtPriceLimitX96 = get_random_oneForZero_priceLimit(_amount);
+        uint160 sqrtPriceLimitX96 = get_random_oneForZero_priceLimit(int256(uint256(_amount)));
         // console.log('sqrtPriceLimitX96 = %s', sqrtPriceLimitX96);
 
         (UniswapSwapper.SwapperStats memory bfre, UniswapSwapper.SwapperStats memory aftr) =

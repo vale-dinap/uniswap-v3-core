@@ -1,66 +1,115 @@
-# Uniswap V3
+# Uniswap V3 Core – Compatibility Layer
 
-[![Lint](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/lint.yml/badge.svg)](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/lint.yml)
-[![Tests](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/tests.yml/badge.svg)](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/tests.yml)
-[![Fuzz Testing](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/fuzz-testing.yml/badge.svg)](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/fuzz-testing.yml)
-[![Mythx](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/mythx.yml/badge.svg)](https://github.com/Uniswap/uniswap-v3-core/actions/workflows/mythx.yml)
-[![npm version](https://img.shields.io/npm/v/@uniswap/v3-core/latest.svg)](https://www.npmjs.com/package/@uniswap/v3-core/v/latest)
+## Overview
+This repository contains a fork of the [Uniswap V3 Core](https://github.com/Uniswap/v3-core) protocol, designed to ensure compatibility with the latest Solidity versions. The primary focus of this fork is to facilitate interaction and integration testing with external smart contracts, while avoiding any modifications to the core logic of Uniswap V3, aside from necessary adjustments for Solidity compiler compatibility.
 
-This repository contains the core smart contracts for the Uniswap V3 Protocol.
-For higher level contracts, see the [uniswap-v3-periphery](https://github.com/Uniswap/uniswap-v3-periphery)
-repository.
+## Purpose
+This compatibility layer has been created with two goals in mind:
+- **Ensure Compatibility**: Update the Uniswap V3 core contracts to work seamlessly with Solidity 0.8.x and newer versions, ensuring that external projects do not face version incompatibility issues.
+- **Enable Testing**: Provide an environment where developers can test their smart contracts against the Uniswap V3 protocol, using modern Solidity tooling, without needing to modify the protocol's fundamental behavior.
 
-## Bug bounty
+## What’s Included
+The repository includes:
+- Updated Solidity contracts for compatibility with version 0.8.x and above.
+- Key components from the Uniswap V3 core:
+  - [**ADD HERE**
+  - **ADD MORE**
+  - **AND SO ON**]
+  ### Callback Interfaces:
+  Interfaces for implementing key callbacks required by the Uniswap V3 protocol such as minting, swapping, and flash loan callbacks.
+    - **IUniswapV3FlashCallback.sol**
+    - **IUniswapV3MintCallback.sol**
+    - **IUniswapV3SwapCallback.sol**
+  ### Pool Contracts:
+  Essential pool-related interfaces and contracts, including actions, state, events, and deployment logic.
+    - **IUniswapV3PoolActions.sol**
+    - **IUniswapV3PoolDerivedState.sol**
+    - **IUniswapV3PoolImmutables.sol**
+    - **UniswapV3Pool.sol**
+    - **UniswapV3PoolDeployer.sol**
+  ### Library Contracts:
+  Utility libraries to perform complex calculations used throughout the protocol, including math functions for liquidity, price, and ticks.
+    - **LiquidityMath.sol**
+    - **SqrtPriceMath.sol**
+    - **FullMath.sol**
+    - **TickMath.sol**
 
-This repository is subject to the Uniswap V3 bug bounty program, per the terms defined [here](./bug-bounty.md).
+## What’s Not Changed
+In keeping with the goal of maintaining the integrity of the original protocol:
+- No changes have been made to the core logic or functionality of Uniswap V3, except for those required to ensure compatibility with newer Solidity compiler versions.
+- The operational and fee structures remain the same as in the original Uniswap V3 Core.
 
-## Local deployment
-
-In order to deploy this code to a local testnet, you should install the npm package
-`@uniswap/v3-core`
-and import the factory bytecode located at
-`@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json`.
-For example:
-
-```typescript
-import {
-  abi as FACTORY_ABI,
-  bytecode as FACTORY_BYTECODE,
-} from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
-
-// deploy the bytecode
+## Directory Structure
+```bash
+contracts/
+  ├── interfaces/
+  │   ├── callback/
+  │   │   ├── IUniswapV3FlashCallback.sol
+  │   │   ├── IUniswapV3MintCallback.sol
+  │   │   └── IUniswapV3SwapCallback.sol
+  │   └── pool/
+  │       ├── IUniswapV3PoolActions.sol
+  │       ├── IUniswapV3PoolDerivedState.sol
+  │       ├── IUniswapV3PoolEvents.sol
+  │       ├── IUniswapV3PoolImmutables.sol
+  │       ├── IUniswapV3PoolOwnerActions.sol
+  │       ├── IUniswapV3PoolState.sol
+  │       └── IUniswapV3PoolDeployer.sol
+  ├── UniswapV3Pool.sol
+  ├── UniswapV3Factory.sol
+  ├── libraries/
+  │   ├── BitMath.sol
+  │   ├── FixedPoint96.sol
+  │   ├── FullMath.sol
+  │   ├── LiquidityMath.sol
+  │   ├── SqrtPriceMath.sol
+  │   ├── TickMath.sol
+  │   ├── Oracle.sol
+  │   └── TransferHelper.sol
+  ├── test/
+  │   ├── UniswapV3Factory.sol
+  │   ├── UniswapV3Pool.sol
+  │   └── UniswapV3PoolDeployer.sol
+.gitignore
+LICENSE
+README.md
+yarn.lock
+hardhat.config.ts
 ```
 
-This will ensure that you are testing against the same bytecode that is deployed to
-mainnet and public testnets, and all Uniswap code will correctly interoperate with
-your local deployment.
+## Key Folders
+**contracts/:** Contains all the Solidity contracts used in Uniswap V3. This includes the interfaces, core pool logic, and necessary libraries.
+**libraries/**: A collection of utility contracts that handle essential mathematical and computational logic used throughout the protocol.
+**test/**: Sample contracts to facilitate testing of Uniswap V3 pool and factory contracts.
 
-## Using solidity interfaces
+## Installation
+To use this compatibility layer for testing or integrating external projects:
 
-The Uniswap v3 interfaces are available for import into solidity smart contracts
-via the npm artifact `@uniswap/v3-core`, e.g.:
-
-```solidity
-import '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
-
-contract MyContract {
-  IUniswapV3Pool pool;
-
-  function doSomethingWithPool() {
-    // pool.swap(...);
-  }
-}
-
+### 1. Clone the Repository:
+```bash
+git clone https://github.com/vale_dinap/uniswap-V3-core.git
 ```
 
-## Licensing
+### 2. Install Dependencies:
+Make sure you have installed the necessary dependencies by running:
+```bash
+yarn install
+```
 
-The primary license for Uniswap V3 Core is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE`](./LICENSE). However, some files are dual licensed under `GPL-2.0-or-later`:
+### 3. Compile Contracts:
+Ensure the Solidity compiler version is compatible with the updated contracts:
+```bash
+forge build
+```
 
-- All files in `contracts/interfaces/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers), see [`contracts/interfaces/LICENSE`](./contracts/interfaces/LICENSE)
-- Several files in `contracts/libraries/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers), see [`contracts/libraries/LICENSE`](contracts/libraries/LICENSE)
+### 4. Run Tests:
+Test the contracts using Foundry or your preferred testing framework:
+```bash
+forge test
+```
 
-### Other Exceptions
+## Contributing
+Contributions are welcome, especially if they help to further improve compatibility or testing capabilities. Please open an issue or a pull request if you encounter bugs, or if you have suggestions for improvements.
 
-- `contracts/libraries/FullMath.sol` is licensed under `MIT` (as indicated in its SPDX header), see [`contracts/libraries/LICENSE_MIT`](contracts/libraries/LICENSE_MIT)
-- All files in `contracts/test` remain unlicensed (as indicated in their SPDX headers).
+## License
+This project is licensed under the same terms as the original Uniswap V3 Core. All rights to the original Uniswap V3 Core code remain with [Uniswap Labs](https://uniswap.org/).
