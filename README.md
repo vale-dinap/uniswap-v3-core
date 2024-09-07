@@ -87,7 +87,7 @@ To use this compatibility layer for testing or integrating external projects:
 
 ### 1. Clone the Repository:
 ```bash
-git clone https://github.com/vale_dinap/uniswap-V3-core.git
+git clone https://github.com/vale-dinap/uniswap-V3-core.git
 ```
 
 ### 2. Install Dependencies:
